@@ -9,6 +9,8 @@ use Illuminate\Http\Response;
 use Illuminate\Queue\Queue;
 use Illuminate\Support\Facades\Log;
 
+use Carbon\Carbon;
+
 class GaeQueue extends Queue implements QueueContract
 {
     const PAYLOAD_REQ_PARAM_NAME = 'data';
@@ -156,6 +158,26 @@ class GaeQueue extends Queue implements QueueContract
         $payload = $this->createPayload($job, $data);
 
         return $this->pushRaw($payload, $queue, compact('delay_seconds'));
+    }
+
+   /**
+    * Turn the future date into seconds from now?
+    */
+    public function getSeconds($delay) {
+        $now = Carbon::now();
+        
+        # If we got a Carbon object
+	if($delay instanceof Carbon) {
+            return $delay->isPast() ? 0 : $delay->diffInSeconds($now);
+        }
+
+        # If we got an int-like string
+        if(is_numeric($delay)) {
+            return (int) $delay;
+        }
+
+        # We failed and I don't feel like playing this game anymore. Just return 0
+        return 0;
     }
 
     /**
