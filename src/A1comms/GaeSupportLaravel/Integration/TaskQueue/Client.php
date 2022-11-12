@@ -68,6 +68,7 @@ class Client
                 return "europe-west1";
             case "us6":
             case "us14":
+            case "us15":
                 return "us-central1";
             default:
                 throw new Exception("Unknown App Engine Region Code: " . $zone);
